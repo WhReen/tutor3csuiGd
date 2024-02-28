@@ -1,6 +1,10 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Scenes/Ground.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scripts/Player.gd" type="Script" id=2]
+[ext_resource path="res://assets/playerShip1_blue.png" type="Texture" id=3]
+
+[sub_resource type="RectangleShape2D" id=1]
 
 [node name="Root" type="Node2D"]
 
@@ -12,3 +16,13 @@ position = Vector2( 789.149, 294.054 )
 
 [node name="Ground3" parent="." instance=ExtResource( 1 )]
 position = Vector2( 225.95, 294.562 )
+
+[node name="Player" type="KinematicBody2D" parent="."]
+position = Vector2( 64, 57 )
+script = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="Player"]
+texture = ExtResource( 3 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource( 1 )
