@@ -40,8 +40,9 @@ func get_input(delta):
 		
 	if jumpLeft > 0 and Input.is_action_just_pressed('ui_up'):
 		if superjumpTime > 0:
+			superjumpTime = 0
+			sprite.scale.x = 0.1
 			velocity.y = -jumpSpeed*2
-			sprite.scale.x = 0.3
 			sfxplayer.play()
 		else:
 			velocity.y = -jumpSpeed
@@ -49,7 +50,7 @@ func get_input(delta):
 		jumpLeft -= 1
 	
 	if Input.is_action_just_released('ui_down'):
-		superjumpTime = delta*5
+		superjumpTime = delta*2
 		
 		
 	if Input.is_action_just_pressed('ui_right'): #doubletap right to run right
