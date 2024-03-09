@@ -9,3 +9,10 @@ Tambahan mekanik peregerakan:
 >Menambah custom bgm
 
 >SFX ketika melakukan superJump
+
+>Menambah RigidBody2D dengan AnimatedSprite
+>Bisa jalan dengan animasi
+>Bisa interaksi dengan player dengan interaksi
+>SFX ketika RigidBody2D diam dan berinteraksi
+
+>Player dapat SFX ketika terinteraksi oleh RigidBody2D
