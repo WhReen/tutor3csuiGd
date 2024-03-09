@@ -3,13 +3,14 @@ extends KinematicBody2D
 export (int) var realSpeed = 500
 export (int) var jumpSpeed = 800
 export (int) var GRAVITY = 2400
-export (int) var doubletapdelay= 0.25
-export (int) var stopTime = 0.1
+export (float) var doubletapdelay= 0.25
+export (float) var stopTime = 0.1
 export (int) var jumpAmount = 2
 
 onready var sprite = $AnimatedSprite
 onready var collision = $CollisionShape2D
 onready var sfxplayer = $AudioStreamPlayer2D
+onready var punchsfx = get_node("punchsfx")
 
 var doubletaptime = 0
 var dtappedright = false
@@ -18,21 +19,30 @@ var crouch = false
 var speed = realSpeed
 var jumpLeft = jumpAmount
 var superjumpTime= 0
+var launchtime = 0
+var animation = "jalan_kanan"
+var juggleescape = 1
+var invultime = 0.5
+var invul = 0
+var launched = false
 
 const UP = Vector2(0,-1)
 
 var velocity = Vector2()
+	
 
-
-func sprite(): #sprite manipulation
+func spritemanip(): #sprite manipulation
 	sprite.rotation_degrees = 90*(velocity.x/(realSpeed*4))
 	sprite.flip_h = velocity.x < 0
-	
-	
+	if sprite.animation != animation:
+		sprite.play(animation)
+	if velocity.x > 1 or velocity.x < -1:
+		sprite.playing = true
+	else:
+		sprite.playing = false
 
 func get_input(delta):
-	var animation = "diri_kanan"
-	
+	animation = "jalan_kanan"
 	if crouch: #crouch movement speed
 		speed = realSpeed/2
 	else:
@@ -50,7 +60,7 @@ func get_input(delta):
 		jumpLeft -= 1
 	
 	if Input.is_action_just_released('ui_down'):
-		superjumpTime = delta*2
+		superjumpTime = delta*3
 		
 		
 	if Input.is_action_just_pressed('ui_right'): #doubletap right to run right
@@ -110,8 +120,14 @@ func get_input(delta):
 		collision.scale.y = 1
 		crouch = false
 		
-	if $AnimatedSprite.animation != animation:
-		$AnimatedSprite.play(animation)
+
+func launch(time, thelaunch):
+	if invul <= 0:
+		launchtime = time/juggleescape
+		velocity = thelaunch
+		juggleescape+=0.1
+		launched = true
+		punchsfx.play()
 
 func _physics_process(delta):
 	if doubletaptime > 0:
@@ -120,14 +136,26 @@ func _physics_process(delta):
 		jumpLeft = jumpAmount
 	if superjumpTime > 0:
 		superjumpTime-=delta
-		print_debug(superjumpTime)
 	velocity.y += delta * GRAVITY
-	get_input(delta)
-	sprite()
+	if launchtime > 0:
+		launchtime -= delta
+		sprite.modulate = Color(0.7, 0.5, 0.5)
+	else:
+		juggleescape = 1
+		get_input(delta)
+		if launched:
+			invul = invultime
+			launched = false
+		if invul > 0:
+			sprite.modulate = Color(0.5, 0.5, 0.5)
+			invul -= delta
+		else:
+			sprite.modulate = Color(1, 1, 1)
 	velocity = move_and_slide(velocity, UP)
+	spritemanip()
 	var slowdown := min(delta/stopTime, 1.0) #x axis slowdown when no x axis movement input pressed
 	velocity.x -= velocity.x * slowdown
-	var slowdownSprite := min(delta/1.6, 1.0)
+	#var slowdownSprite := min(delta/1.6, 1.0)
 	if sprite.scale.x < 1:
 		sprite.scale.x += sprite.scale.x * slowdown
 	
